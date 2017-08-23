@@ -155,8 +155,13 @@ int main() {
           {
               next_x_vals.push_back(poly_inc*i);
               next_y_vals.push_back(polyeval(coeffs, poly_inc*i));
+<<<<<<< HEAD
           }
           
+=======
+          }          
+
+>>>>>>> b82d8853f5b27bbec82f9fb9850e38d66b729c3c
           for(int i=2; i < vars.size(); i++)
           {
             if(i%2 ==0)

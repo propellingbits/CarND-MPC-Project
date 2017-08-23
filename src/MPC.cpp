@@ -45,7 +45,8 @@ class FG_eval {
     // implement MPC
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
-    // the Solver function below.
+    // the Solver function below
+    // here the cost function and vehicle model/constraints is defined
     fg[0] = 0;//cost
 
      // The part of the cost based on the reference state.
@@ -165,6 +166,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   // Initial value of the independent variables.
   // SHOULD BE 0 besides initial state.
+  // vars - This vector contains all variables used by the cost function and model
   Dvector vars(n_vars);
   for (int i = 0; i < n_vars; i++) {
     vars[i] = 0;
@@ -224,8 +226,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   constraints_upperbound[v_start] = v;
   constraints_upperbound[cte_start] = cte;
   constraints_upperbound[epsi_start] = epsi;
+<<<<<<< HEAD
   std::cout << "b4 coeffs" << std::endl; 
   // object that computes objective and constraints
+=======
+
+  // object that computes objective and constraints (cost function)
+>>>>>>> b82d8853f5b27bbec82f9fb9850e38d66b729c3c
   FG_eval fg_eval(coeffs);
 
   //
