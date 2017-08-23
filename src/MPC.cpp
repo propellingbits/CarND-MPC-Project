@@ -3,6 +3,7 @@
 #include <cppad/ipopt/solve.hpp>
 #include "Eigen-3.3/Eigen/Core"
 
+using namespace std;
 using CppAD::AD;
 
 // Set the timestep length and duration
@@ -49,13 +50,18 @@ class FG_eval {
     fg[0] = 0;//cost
 
      // The part of the cost based on the reference state.
-    for (int t = 0; t < N; t++) {
+   std::cout << " cte and epsi" << std::endl;
+   for (int t = 0; t < N; t++) {
       //trying to keep cte and epsi low
-      fg[0] += 2000*CppAD::pow(vars[cte_start + t] - ref_cte, 2); //test out these 2k multiples
-      fg[0] += 2000*CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
+      fg[0] += 500*CppAD::pow(vars[cte_start + t] - ref_cte, 2); //test out these 2k multiples
+      fg[0] += 500*CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
       fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
-    }
 
+    
+       std::cout << "vars[v_start+t]:" << vars[v_start+t] << std::endl;
+       std::cout << "pow 2:" << CppAD::pow(vars[v_start+t]-ref_v,2) << std::endl;
+    }
+    std::cout << "actuators" << std::endl;
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
       fg[0] += 5*CppAD::pow(vars[delta_start + t], 2);
@@ -64,10 +70,11 @@ class FG_eval {
 
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += 200*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 10*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
       fg[0] += 10*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
     
+    std::cout << "cost:" << fg[0] << std::endl;
     //constraints
     fg[1 + x_start] = vars[x_start];
     fg[1 + y_start] = vars[y_start];
@@ -78,6 +85,7 @@ class FG_eval {
 
     for (int t = 0; t < N-1; t++) {
       // The state at time t+1 .
+      std::cout << "t at: " << t << std::endl; 
       AD<double> x1 = vars[x_start + t + 1];
       AD<double> y1 = vars[y_start + t + 1];
       AD<double> psi1 = vars[psi_start + t + 1];
@@ -119,10 +127,10 @@ class FG_eval {
       // (t + 1) - t should be equal to zero 
       fg[2 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
       fg[2 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[2 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt); // test these +- V
+      fg[2 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt); // test these +- V
       fg[2 + v_start + t] = v1 - (v0 + a0 * dt);
       fg[2 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-      fg[2 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);
+      fg[2 + epsi_start + t] = epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
     }
 
 
@@ -219,7 +227,10 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   constraints_upperbound[cte_start] = cte;
   constraints_upperbound[epsi_start] = epsi;
 
+  std::cout << "b4 coeffs" << std::endl;
+
   // object that computes objective and constraints (cost function)
+
   FG_eval fg_eval(coeffs);
 
   //
