@@ -118,8 +118,8 @@ int main() {
 
           auto coeffs = polyfit(ptsx_transform, ptsy_transform, 3);
 
-          double cte = polyeval(coeffs, 0);
-          double epsi = -atan(coeffs[1]);
+          double cte = polyeval(coeffs, px) - py;
+          double epsi = psi - atan(coeffs[1]);
 
           double steer_value = j[1]["steering_angle"];
           double throttle_value = j[1]["throttle"];
@@ -156,10 +156,7 @@ int main() {
               next_x_vals.push_back(poly_inc*i);
               next_y_vals.push_back(polyeval(coeffs, poly_inc*i));
           }
-
-          vector<double> mpc_x_vals;
-          vector<double> mpc_y_vals;
-
+          
           for(int i=2; i < vars.size(); i++)
           {
             if(i%2 ==0)
@@ -174,7 +171,8 @@ int main() {
 
           double Lf = 2.67;
           msgJson["steering_angle"] = vars[0]/(deg2rad(25)*Lf);
-          msgJson["throttle"] = vars[1]; 
+          msgJson["throttle"] = vars[1];
+          std::cout << "throttle:" << vars[1] << std::endl; 
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
