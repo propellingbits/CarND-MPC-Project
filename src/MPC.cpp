@@ -8,7 +8,7 @@ using CppAD::AD;
 
 // Set the timestep length and duration
 size_t N = 10;
-double dt = 0.1;
+double dt = 0.2;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -21,9 +21,9 @@ double dt = 0.1;
 //
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
-double ref_cte = 0;
-double ref_epsi = 0;
-double ref_v = 100;
+double ref_cte = 0.0;
+double ref_epsi = 0.0;
+double ref_v = 30 * 0.44704;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -53,25 +53,25 @@ class FG_eval {
    std::cout << " cte and epsi" << std::endl;
    for (int t = 0; t < N; t++) {
       //trying to keep cte and epsi low
-      fg[0] += 500*CppAD::pow(vars[cte_start + t] - ref_cte, 2); //test out these 2k multiples
-      fg[0] += 500*CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
+      fg[0] += CppAD::pow(vars[cte_start + t] - ref_cte, 2); //test out these 2k multiples
+      fg[0] += CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
       fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
-
     
        std::cout << "vars[v_start+t]:" << vars[v_start+t] << std::endl;
        std::cout << "pow 2:" << CppAD::pow(vars[v_start+t]-ref_v,2) << std::endl;
     }
+
     std::cout << "actuators" << std::endl;
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += 5*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += 5*CppAD::pow(vars[a_start + t], 2);
+      fg[0] += CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += 10*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += 10*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += 1000.0*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += 1000.0*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
     
     std::cout << "cost:" << fg[0] << std::endl;
@@ -140,7 +140,10 @@ class FG_eval {
 //
 // MPC class definition implementation.
 //
-MPC::MPC() {}
+MPC::MPC() {
+  solution_x_.resize(N-1); // for printing the green line
+  solution_y_.resize(N-1); // for printing the green line
+}
 MPC::~MPC() {}
 
 vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
@@ -160,6 +163,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // element vector and there are 10 timesteps. The number of variables is:
   //
   // 4 * 10 + 2 * 9
+  // All of these should be 0 except the initial
   size_t n_vars = N * 6 + (N - 1) * 2;
   // Set the number of constraints
   size_t n_constraints = N * 6;
@@ -171,6 +175,13 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   for (int i = 0; i < n_vars; i++) {
     vars[i] = 0;
   }
+
+  vars[x_start] = x;       // initial state		
+  vars[y_start] = y;		
+  vars[psi_start] = psi;		
+  vars[v_start] = v;		
+  vars[cte_start] = cte;		
+  vars[epsi_start] = epsi;
 
   // Lower and upper limits for x
   Dvector vars_lowerbound(n_vars);
@@ -204,7 +215,6 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
 
   // Lower and upper limits for constraints
-  // All of these should be 0 except the initial
   // state indices.
   Dvector constraints_lowerbound(n_constraints);
   Dvector constraints_upperbound(n_constraints);
@@ -271,7 +281,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   //
   // {...} is shorthand for creating a vector, so auto x1 = {1.0,2.0}
   // creates a 2 element double vector.
-  vector<double> result;
+  /*vector<double> result;
   result.push_back(solution.x[delta_start]);
   result.push_back(solution.x[a_start]);
 
@@ -279,7 +289,18 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   {
     result.push_back(solution.x[x_start + i + 1]);
     result.push_back(solution.x[y_start + i + 1]);
-  }
+  }*/
 
-  return result;
+    // fill the predicted path to plot on the simulator
+    for (int i=1; i<N; i++){
+      solution_x_[i-1] = solution.x[i + x_start];
+      solution_y_[i-1] = solution.x[i + y_start];
+    }
+  
+  return {solution.x[x_start + 1],   solution.x[y_start + 1],
+    solution.x[psi_start + 1], solution.x[v_start + 1],
+    solution.x[cte_start + 1], solution.x[epsi_start + 1],
+    solution.x[delta_start],   solution.x[a_start]};
+
+  //return result;
 }
