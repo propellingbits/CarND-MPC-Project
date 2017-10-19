@@ -51,10 +51,12 @@ class FG_eval {
 
      // The part of the cost based on the reference state.
    std::cout << " cte and epsi" << std::endl;
+
+
    for (int t = 0; t < N; t++) {
       //trying to keep cte and epsi low
-      fg[0] += CppAD::pow(vars[cte_start + t] - ref_cte, 2); //test out these 2k multiples
-      fg[0] += CppAD::pow(vars[epsi_start + t] - ref_epsi, 2);
+      fg[0] += CppAD::pow(vars[cte_start + t], 2); //test out these 2k multiples
+      fg[0] += CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
     
        std::cout << "vars[v_start+t]:" << vars[v_start+t] << std::endl;
@@ -64,8 +66,8 @@ class FG_eval {
     std::cout << "actuators" << std::endl;
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t], 2);
+      fg[0] += 10*CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += 10*CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
@@ -148,7 +150,7 @@ MPC::~MPC() {}
 
 vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   bool ok = true;
-  size_t i;
+  //size_t i;
   typedef CPPAD_TESTVECTOR(double) Dvector;
 
   double x = state[0];

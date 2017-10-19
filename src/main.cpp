@@ -149,7 +149,7 @@ int main() {
 
           auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
           double steer_value_in = j[1]["steering_angle"];
-          steer_value_in *= deg2rad(25);
+          //steer_value_in *= deg2rad(25);
           double throttle_value_in = j[1]["throttle"];
 
           //polyeval to evaluate y values of given x coordinates.
