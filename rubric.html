@@ -1,1 +1,66 @@
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1561">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 16.0px 0.0px; line-height: 18.0px; font: 16.0px 'Helvetica Neue'; color: #24292e; -webkit-text-stroke: #24292e}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 19.0px; font: 13.6px Menlo; color: #24292e; -webkit-text-stroke: #24292e; background-color: #f6f8fa}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 19.0px; font: 13.6px Menlo; color: #24292e; -webkit-text-stroke: #24292e; background-color: #f6f8fa; min-height: 16.0px}
+    p.p4 {margin: 0.0px 0.0px 16.0px 0.0px; line-height: 18.0px; font: 16.0px 'Helvetica Neue'; color: #24292e; -webkit-text-stroke: #24292e; min-height: 18.0px}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 17.0px; font: 14.0px Times; color: #525c65; -webkit-text-stroke: #525c65; background-color: #ffffff; min-height: 18.0px}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 17.0px; font: 16.0px '.SF NS Text'; color: #525c65; -webkit-text-stroke: #525c65; background-color: #ffffff}
+    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 18.0px; font: 16.0px 'Helvetica Neue'; color: #24292e; -webkit-text-stroke: #24292e; background-color: #ffffff}
+    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 18.0px; font: 16.0px 'Helvetica Neue'; color: #24292e; -webkit-text-stroke: #24292e; background-color: #ffffff; min-height: 18.0px}
+    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 18.0px; font: 18.0px 'Helvetica Neue'; color: #0366d6; -webkit-text-stroke: #0366d6; min-height: 21.0px}
+    span.s1 {font-kerning: none}
+    span.s2 {font: 13.6px Menlo; font-kerning: none; background-color: rgba(27, 31, 35, 0.047)}
+    span.s3 {font: 18.0px '.SF NS Text'; font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">MPC calculates the trajectory, actuations and sends back steering to the simulator.  The state vector of the vehicle is given as:</span></p>
+<p class="p2"><span class="s1">x - Vehicle position in forward direction</span></p>
+<p class="p2"><span class="s1">y - Vehicle position in lateral direction</span></p>
+<p class="p2"><span class="s1">psi - yaw angle</span></p>
+<p class="p2"><span class="s1">v - Vehicle's speed</span></p>
+<p class="p2"><span class="s1">cte - cross track error</span></p>
+<p class="p2"><span class="s1">epsi - orientation error</span></p>
+<p class="p3"><span class="s1"></span><br></p>
+<p class="p2"><span class="s1">And the actuators are:</span></p>
+<p class="p2"><span class="s1">delta - Steering angle (radians)</span></p>
+<p class="p2"><span class="s1">a - acceleration</span></p>
+<p class="p3"><span class="s1"></span><br></p>
+<p class="p2"><span class="s1">Lf - the distance between the center of mass of the vehicle and the front wheels.</span></p>
+<p class="p3"><span class="s1"></span><br></p>
+<p class="p4"><span class="s1"></span><br></p>
+<p class="p1"><span class="s1">The MPC model used in the project is expressed by the following equations:</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>v_[t+1] = v[t] + a[t] * dt</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">      </span>epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt</span></p>
+<p class="p3"><span class="s1"></span><br></p>
+<p class="p3"><span class="s1"></span><br></p>
+<p class="p5"><span class="s1"></span><br></p>
+<p class="p6"><span class="s1">Time-step Length and Elapsed Duration (N &amp; dt)</span></p>
+<p class="p7"><span class="s1">As mentioned in the course lessons - Timestep Length and Frequency are meant to be chosen by trial and error. I started with 10 timesteps (</span><span class="s2">N</span><span class="s1">) of 0.2 duration (</span><span class="s2">dt</span><span class="s1">) with a speed of 100 mph. However, there was a lot of erratic driving behavior with these values. I changed dt to 0.1 to see how car would behave, and that was it. This small change got me very impressive results. Car is driving smooth and along the track.</span></p>
+<p class="p8"><span class="s1"></span><br></p>
+<p class="p6"><span class="s1">Model Predictive Control with Latency</span></p>
+<p class="p1"><span class="s1">As per project requirements a latency of 100ms is artificially added before sending actuations to the simulator to simulate real world conditions. Latency helps in simulating real world driving conditions.</span></p>
+<p class="p1"><span class="s1">Here are the updated equations and model along with latency in the state vector.</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>Lf=2.67, latency=0.1 sec</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>x_dl = (0.0 + v * latency);</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>y_dl = 0.0;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>psi_dl = 0.0 + v * steer_value_input / Lf * latency;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>v_dl = 0.0 + v + throttle_value_input * latency;</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>cte_dl = cte + (v * sin(epsi) * latency);</span></p>
+<p class="p2"><span class="s1"><span class="Apple-converted-space">    </span>epsi_dl = epsi + v * steer_value_input / Lf * latency;</span></p>
+<p class="p9"><span class="s3"><b></b></span><br></p>
+<p class="p5"><span class="s1"></span><br></p>
+</body>
+</html>
